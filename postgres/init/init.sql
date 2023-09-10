@@ -241,7 +241,7 @@ RETURNS TABLE (	  id int
 					LEFT JOIN	core.link_vacancy_salary as lvs ON lvs.vacancy_id = sv.vacancy_id
 					LEFT JOIN	core.sat_salary as ss ON ss.salary_id = lvs.salary_id
 
-					WHERE		vacancy_name = ANY(filter)
+					WHERE		sv.type = ANY(filter)
 				)
 
 		, avg_salary AS	(	SELECT	  sv.vacancy_id
@@ -407,7 +407,7 @@ RETURNS TABLE (	  id int
 					LEFT JOIN	core.link_vacancy_salary as lvs ON lvs.vacancy_id = sv.vacancy_id
 					LEFT JOIN	core.sat_salary as ss ON ss.salary_id = lvs.salary_id
 
-					WHERE		vacancy_name = ANY(filter)
+					WHERE		sv.type = ANY(filter)
 				)
 
 		, avg_salary AS	(	SELECT	  sv.vacancy_id
