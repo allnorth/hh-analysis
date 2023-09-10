@@ -1,5 +1,5 @@
 import pendulum
-from datetime import timedelta
+from datetime import timedelta, datetime
 from airflow.operators.python import PythonOperator
 from airflow.providers.postgres.operators.postgres import SQLExecuteQueryOperator
 from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
@@ -20,7 +20,7 @@ default_args = {
 
 with DAG(dag_id='vacancy_etl',
          default_args=default_args,
-         start_date=pendulum.datetime(2023,9,6, tz=pendulum.timezone('Europe/Moscow')),
+         start_date=pendulum.datetime(datetime.now().year,datetime.now().month,datetime.now().day - 1, tz=pendulum.timezone('Europe/Moscow')),
          schedule='@daily',
          ) as dag:
 

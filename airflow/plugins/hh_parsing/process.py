@@ -4,8 +4,8 @@ import json
 import psycopg2
 from airflow.hooks.base_hook import BaseHook
 
+#fake useragent
 def get_headers():
-
     user = fake_useragent.UserAgent().random
     headers = {'user-agent': user}
     return headers
@@ -20,8 +20,8 @@ def get_postgres_conn(conn_id):
 
     return conn
 
+#get pages with data from api.hh.ru
 def get_page(filter, period, pg=0):
-
     params = {
         'text': filter,
         'page': pg,
@@ -34,28 +34,29 @@ def get_page(filter, period, pg=0):
     req.close()
     return data
 
+#get and transform data
 def get_vacancies(conn_id):
+    #check init setting from db
     conn = get_postgres_conn(conn_id)
     cur = conn.cursor()
-
     sql = """SELECT value
              FROM proc.settings
              WHERE name = 'is_init';
-           """
+          """
     cur.execute(sql)
-
     select = cur.fetchall()
 
     if not select:
-        period = 30
+        period = 30 #full load
         sql = """INSERT INTO proc.settings (id, name, value) VALUES (1, 'is_init', 'False');"""
         cur.execute(sql)
         conn.commit()
     else:
-        period = 1
+        period = 1 #incremental load
 
     cur.close()
 
+    #filters
     filters = ['"Data Engineer" OR "Инженер данных" OR "Дата Инженер"'
                , '"Data Analyst" OR "Аналитик данных"'
                , '"Data Scientist"']
@@ -72,6 +73,7 @@ def get_vacancies(conn_id):
             if (page_dict['pages'] - page) <= 1:
                 break
 
+    #prep data for load in db
     vacancies = set()
     for vacancy in raw_vacancies:
         vacancies.add((int(vacancy['id']),                                                                                                  #id
@@ -93,6 +95,7 @@ def get_vacancies(conn_id):
 
     return vacancies
 
+#load data in db
 def load_data(conn_id):
     conn = get_postgres_conn(conn_id)
 
