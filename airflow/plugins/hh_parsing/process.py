@@ -1,14 +1,24 @@
 import fake_useragent
 import requests
 import json
-import time
 import psycopg2
+from airflow.hooks.base_hook import BaseHook
 
 def get_headers():
 
     user = fake_useragent.UserAgent().random
     headers = {'user-agent': user}
     return headers
+
+def get_postgres_conn(conn_id):
+    hook = BaseHook.get_connection(conn_id)
+    conn = psycopg2.connect(host=hook.host,
+                            port=hook.port,
+                            user=hook.login, 
+                            password=hook.password,
+                            dbname=hook.schema)
+
+    return conn
 
 def get_page(filter, period, pg=0):
 
@@ -24,7 +34,28 @@ def get_page(filter, period, pg=0):
     req.close()
     return data
 
-def get_vacancies(period):
+def get_vacancies(conn_id):
+    conn = get_postgres_conn(conn_id)
+    cur = conn.cursor()
+
+    sql = """SELECT value
+             FROM proc.settings
+             WHERE name = 'is_init';
+           """
+    cur.execute(sql)
+
+    select = cur.fetchall()
+
+    if not select:
+        period = 30
+        sql = """INSERT INTO proc.settings (id, name, value) VALUES (1, 'is_init', 'False');"""
+        cur.execute(sql)
+        conn.commit()
+    else:
+        period = 1
+
+    cur.close()
+
     filters = ['"Data Engineer" OR "Инженер данных" OR "Дата Инженер"'
                , '"Data Analyst" OR "Аналитик данных"'
                , '"Data Scientist"']
@@ -33,17 +64,13 @@ def get_vacancies(period):
     for filter in filters:
         for page in range(0, 25):
             page_dict = json.loads(get_page(filter, period, page))
+            print(page_dict['pages'])
             if page_dict.get('items') is not None:
                 for vacancy in page_dict.get('items'):
                     raw_vacancies.append(vacancy)
-                else:
-                    break
 
             if (page_dict['pages'] - page) <= 1:
                 break
-            time.sleep(0.25)
-
-
 
     vacancies = set()
     for vacancy in raw_vacancies:
@@ -66,13 +93,8 @@ def get_vacancies(period):
 
     return vacancies
 
-def load_data(vacancies):
-
-    conn = psycopg2.connect(host='host.docker.internal',
-                            port=5430,
-                            user='postgres', 
-                            password='password',
-                            dbname='test')
+def load_data(conn_id):
+    conn = get_postgres_conn(conn_id)
 
     with conn.cursor() as cur:
         sql = """INSERT INTO stage.vacancy (   id
@@ -92,5 +114,5 @@ def load_data(vacancies):
                                              , salary_currency
                                              , is_gross)
                  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
-        cur.executemany(sql, vacancies)
+        cur.executemany(sql, get_vacancies(conn_id))
         conn.commit()
