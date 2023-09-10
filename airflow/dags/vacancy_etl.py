@@ -28,16 +28,16 @@ with DAG(dag_id='vacancy_etl',
 
     t_truncate_stage = SQLExecuteQueryOperator(
         task_id = 'truncate_stage',
-        conn_id='postgres_test_db',
+        conn_id='postgres_vacancy_db',
         sql =   """ TRUNCATE TABLE stage.vacancy;""")
 
     t_load_data = PythonOperator(
         task_id='load_data',
-        python_callable = partial(load_data, conn_id='postgres_test_db'))
+        python_callable = partial(load_data, conn_id='postgres_vacancy_db'))
 
     t_etl_core_hub_vacancy = SQLExecuteQueryOperator(
         task_id = 'load_hub_vacancy',
-        conn_id='postgres_test_db',
+        conn_id='postgres_vacancy_db',
         sql =   """ INSERT INTO core.hub_vacancy (record_source, load_date, external_id)
                     SELECT        DISTINCT
                                     'hh' as record_source
@@ -50,7 +50,7 @@ with DAG(dag_id='vacancy_etl',
 
     t_etl_core_hub_employer = SQLExecuteQueryOperator(
         task_id = 'load_hub_employer',
-        conn_id='postgres_test_db',
+        conn_id='postgres_vacancy_db',
         sql =   """ INSERT INTO core.hub_employer (record_source, load_date, external_id)
                     SELECT      DISTINCT
                                   'hh' as record_source
@@ -64,7 +64,7 @@ with DAG(dag_id='vacancy_etl',
 
     t_etl_core_hub_experience = SQLExecuteQueryOperator(
         task_id = 'load_hub_experience',
-        conn_id='postgres_test_db',
+        conn_id='postgres_vacancy_db',
         sql =   """ INSERT INTO core.hub_experience (record_source, load_date, external_id)
                     SELECT      DISTINCT
                                   'hh' as record_source
@@ -78,7 +78,7 @@ with DAG(dag_id='vacancy_etl',
 
     t_etl_core_hub_area = SQLExecuteQueryOperator(
         task_id = 'load_hub_area',
-        conn_id='postgres_test_db',
+        conn_id='postgres_vacancy_db',
         sql =   """ INSERT INTO core.hub_area (record_source, load_date, external_id)
                     SELECT      DISTINCT
                                 'hh' as record_source
@@ -92,7 +92,7 @@ with DAG(dag_id='vacancy_etl',
 
     t_etl_core_hub_salary = SQLExecuteQueryOperator(
         task_id = 'load_hub_salary',
-        conn_id='postgres_test_db',
+        conn_id='postgres_vacancy_db',
         sql =   """ INSERT INTO core.hub_salary (record_source, load_date, external_id)
                     SELECT        DISTINCT
                                   'hh' as record_source
@@ -106,7 +106,7 @@ with DAG(dag_id='vacancy_etl',
 
     t_etl_core_sat_vacancy = SQLExecuteQueryOperator(
         task_id = 'load_sat_vacancy',
-        conn_id='postgres_test_db',
+        conn_id='postgres_vacancy_db',
         sql =   """ MERGE INTO core.sat_vacancy AS trg
                     USING   (   SELECT  DISTINCT
                                           hv.vacancy_id
@@ -213,7 +213,7 @@ with DAG(dag_id='vacancy_etl',
 
     t_etl_core_sat_employer = SQLExecuteQueryOperator(
         task_id = 'load_sat_employer',
-        conn_id='postgres_test_db',
+        conn_id='postgres_vacancy_db',
         sql =   """ MERGE INTO core.sat_employer AS trg
                     USING    (    SELECT    DISTINCT
                                           he.employer_id
@@ -261,7 +261,7 @@ with DAG(dag_id='vacancy_etl',
 
     t_etl_core_sat_experience = SQLExecuteQueryOperator(
         task_id = 'load_sat_experience',
-        conn_id='postgres_test_db',
+        conn_id='postgres_vacancy_db',
         sql =   """ MERGE INTO core.sat_experience AS trg
                     USING   (   SELECT  DISTINCT
                                           he.experience_id
@@ -303,7 +303,7 @@ with DAG(dag_id='vacancy_etl',
 
     t_etl_core_sat_area = SQLExecuteQueryOperator(
         task_id = 'load_sat_area',
-        conn_id='postgres_test_db',
+        conn_id='postgres_vacancy_db',
         sql =   """ MERGE INTO core.sat_area AS trg
                     USING   (   SELECT    DISTINCT
                                           ha.area_id
@@ -345,7 +345,7 @@ with DAG(dag_id='vacancy_etl',
 
     t_etl_core_sat_salary = SQLExecuteQueryOperator(
         task_id = 'load_sat_salary',
-        conn_id='postgres_test_db',
+        conn_id='postgres_vacancy_db',
         sql =   """ MERGE INTO core.sat_salary AS trg
                     USING   (   SELECT  DISTINCT
                                           hs.salary_id
@@ -389,7 +389,7 @@ with DAG(dag_id='vacancy_etl',
 
     t_etl_core_link_vacancy_employer = SQLExecuteQueryOperator(
         task_id = 'load_link_vacancy_employer',
-        conn_id='postgres_test_db',
+        conn_id='postgres_vacancy_db',
         sql =   """ INSERT INTO core.link_vacancy_employer (vacancy_id, employer_id, date_from, date_to)
                     SELECT        hv.vacancy_id
                                 , he.employer_id
@@ -421,7 +421,7 @@ with DAG(dag_id='vacancy_etl',
 
     t_etl_core_link_vacancy_experience = SQLExecuteQueryOperator(
         task_id = 'load_link_vacancy_experience',
-        conn_id='postgres_test_db',
+        conn_id='postgres_vacancy_db',
         sql =   """ INSERT INTO core.link_vacancy_experience (vacancy_id, experience_id, date_from, date_to)
                     SELECT        hv.vacancy_id
                                 , he.experience_id
@@ -453,7 +453,7 @@ with DAG(dag_id='vacancy_etl',
 
     t_etl_core_link_vacancy_area = SQLExecuteQueryOperator(
         task_id = 'load_link_vacancy_area',
-        conn_id='postgres_test_db',
+        conn_id='postgres_vacancy_db',
         sql =   """ INSERT INTO core.link_vacancy_area (vacancy_id, area_id, date_from, date_to)
                     SELECT        hv.vacancy_id
                                 , he.area_id
@@ -485,7 +485,7 @@ with DAG(dag_id='vacancy_etl',
 
     t_etl_core_link_vacancy_salary = SQLExecuteQueryOperator(
         task_id = 'load_link_vacancy_salary',
-        conn_id='postgres_test_db',
+        conn_id='postgres_vacancy_db',
         sql =   """ INSERT INTO core.link_vacancy_salary (vacancy_id, salary_id, date_from, date_to)
                     SELECT        hv.vacancy_id
                                 , he.salary_id

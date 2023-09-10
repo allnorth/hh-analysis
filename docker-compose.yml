@@ -61,6 +61,7 @@ x-airflow-common:
     AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
     AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth'
     _PIP_ADDITIONAL_REQUIREMENTS: 'fake-useragent==1.2.1 pendulum==2.1.2'
+    AIRFLOW_CONN_POSTGRES_VACANCY_DB: 'postgres://postgres:password@:5430/vacancy'
     AIRFLOW__CORE__DAGBAG_IMPORT_TIMEOUT: 300
   volumes:
     - ./airflow/dags:/opt/airflow/dags
@@ -101,7 +102,7 @@ services:
     ports:
       - "5430:5432"
     environment:
-      - POSTGRES_DB=test
+      - POSTGRES_DB=vacancy
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=password
       - PGDATA=/var/lib/postgresql/data/pgdata
