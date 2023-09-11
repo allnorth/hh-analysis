@@ -53,6 +53,6 @@ pgadmin
    ```SELECT * FROM mart.get_vacancies_by_employer(ARRAY['Data Analyst'])```
    
    Запрос для получения витрины DS по компаниям \
-   ```SELECT * FROM mart.get_vacancies_by_employer(ARRAY['Data Scientist']);```
+   ```SELECT * FROM mart.get_vacancies_by_employer(ARRAY['Data Scientist'])```
    
    
