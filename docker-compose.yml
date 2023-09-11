@@ -97,7 +97,7 @@ services:
     image: postgres:latest
     platform: linux/amd64
     volumes:
-      - db_vol:/var/lib/postgresql/data/pgdata
+      - vacancy-db-vol:/var/lib/postgresql/data/pgdata
       - ./postgres/init/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "5430:5432"
@@ -123,7 +123,7 @@ services:
     ports:
         - 80:80
     volumes:
-        - pgadmin:/var/lib/pgadmin
+        - pgadmin-vol:/var/lib/pgadmin
     depends_on:
         - db
 
@@ -318,8 +318,8 @@ services:
 
 volumes:
   postgres-db-volume:
-  db_vol:
-  pgadmin:
+  vacancy-db-vol:
+  pgadmin-vol:
 
 networks:
   default:
