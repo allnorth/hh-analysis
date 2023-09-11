@@ -182,9 +182,9 @@ RETURNS TABLE (	  id int
 				, area_name varchar
 				, cnt_open int
 				, cnt_salary int
+				, avg_salary decimal
 				, min_salary decimal
 				, max_salary decimal
-				, avg_salary decimal
 				, ratio decimal
 				, intern_cnt int
 				, intern_avg decimal
@@ -228,6 +228,7 @@ RETURNS TABLE (	  id int
 								, sv.vacancy_name
 								, sv.is_open
 								, sv.grade
+								, sv.type
 								, sa.area_id
 								, sa.area_name
 								, se.experience_name
@@ -247,9 +248,9 @@ RETURNS TABLE (	  id int
 		, avg_salary AS	(	SELECT	  sv.vacancy_id
 									, coalesce((coalesce(salary_from, salary_to) + coalesce(salary_to, salary_from)/2), 0.0) AS avg_salary
 
-							FROM		core.sat_vacancy AS sv
-							JOIN		core.link_vacancy_salary AS lvs ON lvs.vacancy_id = sv.vacancy_id
-							JOIN		core.sat_salary AS ss ON ss.salary_id = lvs.salary_id)
+							FROM	core.sat_vacancy AS sv
+							JOIN	core.link_vacancy_salary AS lvs ON lvs.vacancy_id = sv.vacancy_id
+							JOIN	core.sat_salary AS ss ON ss.salary_id = lvs.salary_id)
 
 		, grade AS (	SELECT		  t.area_name
 									, t.grade
@@ -264,7 +265,7 @@ RETURNS TABLE (	  id int
 
 		, expirience AS (	SELECT		  t.area_name
 										, t.experience_name
-										, count(distinct t.vacancy_id) AS cnt
+										, count(DISTINCT t.vacancy_id) AS cnt
 										, avg(avg_salary) AS avg
 										, min(avg_salary) AS min
 										, max(avg_salary) AS max
@@ -277,9 +278,9 @@ RETURNS TABLE (	  id int
 			, tbl.area_name
 			, tbl.cnt_open
 			, tbl.cnt_salary
+			, tbl.avg_salary
 			, tbl.min_salary
 			, tbl.max_salary
-			, tbl.avg_salary
 			, tbl.avg_salary/(case when tbl.max_salary = 0 then 1 else tbl.max_salary end) as ratio
 			, coalesce(intern.cnt, 0.0) AS intern_cnt
 			, coalesce(intern.avg, 0.0) AS intern_avg
@@ -318,27 +319,27 @@ RETURNS TABLE (	  id int
 			, coalesce(high_exp.min, 0.0) AS high_exp_min
 			, coalesce(high_exp.max, 0.0) AS high_exp_max
 
-	FROM	(	SELECT t.area_name
-						, count(case when t.is_open = True then 1 end) as cnt_open
-						, count(case when t.salary_from <> 0 or salary_from <> 0 then 1 end) as cnt_salary
-						, coalesce(min(av.avg_salary), 0.0) as min_salary
-						, coalesce(max(av.avg_salary), 0.0) as max_salary
-						, coalesce(avg(av.avg_salary), 0.0) as avg_salary
-				FROM tbl as t
-				LEFT JOIN avg_salary as av ON av.vacancy_id = t.vacancy_id
+	FROM	(	SELECT		  t.area_name
+							, count(CASE WHEN t.is_open = True THEN 1 END) AS cnt_open
+							, count(CASE WHEN t.salary_from <> 0 or salary_from <> 0 THEN 1 END) AS cnt_salary
+							, coalesce(min(av.avg_salary), 0.0) as min_salary
+							, coalesce(max(av.avg_salary), 0.0) as max_salary
+							, coalesce(avg(av.avg_salary), 0.0) as avg_salary
+				FROM		tbl as t
+				LEFT JOIN	avg_salary as av ON av.vacancy_id = t.vacancy_id
 				GROUP BY	t.area_name
 			) AS tbl
 
-	LEFT JOIN (select * from grade where grade = 'Intern') AS intern ON intern.area_name = tbl.area_name
-	LEFT JOIN (select * from grade where grade = 'Junior') AS junior ON junior.area_name = tbl.area_name
-	LEFT JOIN (select * from grade where grade = 'Middle') AS middle ON middle.area_name = tbl.area_name
-	LEFT JOIN (select * from grade where grade = 'Senior') AS senior ON senior.area_name = tbl.area_name
-	LEFT JOIN (select * from grade where grade = 'Team Lead') AS lead ON lead.area_name = tbl.area_name
+	LEFT JOIN (SELECT * FROM grade WHERE grade = 'Intern') AS intern ON intern.area_name = tbl.area_name
+	LEFT JOIN (SELECT * FROM grade WHERE grade = 'Junior') AS junior ON junior.area_name = tbl.area_name
+	LEFT JOIN (SELECT * FROM grade WHERE grade = 'Middle') AS middle ON middle.area_name = tbl.area_name
+	LEFT JOIN (SELECT * FROM grade WHERE grade = 'Senior') AS senior ON senior.area_name = tbl.area_name
+	LEFT JOIN (SELECT * FROM grade WHERE grade = 'Team Lead') AS lead ON lead.area_name = tbl.area_name
 
-	LEFT JOIN (select * from expirience where experience_name = 'Нет опыта') AS no_exp ON no_exp.area_name = tbl.area_name
-	LEFT JOIN (select * from expirience where experience_name = 'От 1 года до 3 лет') AS low_exp ON low_exp.area_name = tbl.area_name
-	LEFT JOIN (select * from expirience where experience_name = 'От 3 до 6 лет') AS mid_exp ON mid_exp.area_name = tbl.area_name
-	LEFT JOIN (select * from expirience where experience_name = 'Более 6 лет') AS high_exp ON high_exp.area_name = tbl.area_name
+	LEFT JOIN (SELECT * FROM expirience WHERE experience_name = 'Нет опыта') AS no_exp ON no_exp.area_name = tbl.area_name
+	LEFT JOIN (SELECT * FROM expirience WHERE experience_name = 'От 1 года до 3 лет') AS low_exp ON low_exp.area_name = tbl.area_name
+	LEFT JOIN (SELECT * FROM expirience WHERE experience_name = 'От 3 до 6 лет') AS mid_exp ON mid_exp.area_name = tbl.area_name
+	LEFT JOIN (SELECT * FROM expirience WHERE experience_name = 'Более 6 лет') AS high_exp ON high_exp.area_name = tbl.area_name
 
 	ORDER BY tbl.area_name;
 $$ LANGUAGE SQL;
@@ -348,9 +349,9 @@ RETURNS TABLE (	  id int
 				, employer_name varchar
 				, cnt_open int
 				, cnt_salary int
+				, avg_salary decimal
 				, min_salary decimal
 				, max_salary decimal
-				, avg_salary decimal
 				, ratio decimal
 				, intern_cnt int
 				, intern_avg decimal
@@ -439,14 +440,14 @@ RETURNS TABLE (	  id int
 							GROUP BY	  t.employer_name
 										, t.experience_name)
 
-	select	  row_number() over () as id
+	SELECT	  row_number() OVER () AS id
 			, tbl.employer_name
 			, tbl.cnt_open
 			, tbl.cnt_salary
+			, tbl.avg_salary
 			, tbl.min_salary
 			, tbl.max_salary
-			, tbl.avg_salary
-			, tbl.avg_salary/(case when tbl.max_salary = 0 then 1 else tbl.max_salary end) as ratio
+			, tbl.avg_salary/(CASE WHEN tbl.max_salary = 0 THEN 1 ELSE tbl.max_salary END) AS ratio
 			, coalesce(intern.cnt, 0.0) AS intern_cnt
 			, coalesce(intern.avg, 0.0) AS intern_avg
 			, coalesce(intern.min, 0.0) AS intern_min
@@ -514,9 +515,9 @@ RETURNS TABLE (	  id int
 				, vacancy_type varchar
 				, cnt_open int
 				, cnt_salary int
+				, avg_salary decimal
 				, min_salary decimal
 				, max_salary decimal
-				, avg_salary decimal
 				, ratio decimal
 				, intern_cnt int
 				, intern_avg decimal
@@ -567,11 +568,11 @@ RETURNS TABLE (	  id int
 								, ss.salary_from
 								, ss.salary_to
 					FROM		core.sat_vacancy AS sv
-					JOIN		core.link_vacancy_area AS lva on lva.vacancy_id = sv.vacancy_id
-					JOIN		core.sat_area AS sa on sa.area_id = lva.area_id
-					JOIN		core.link_vacancy_experience AS lve on lve.vacancy_id = sv.vacancy_id
-					JOIN		core.sat_experience AS se on se.experience_id = lve.experience_id
-					LEFT JOIN	core.link_vacancy_salary as lvs on lvs.vacancy_id = sv.vacancy_id
+					JOIN		core.link_vacancy_area AS lva ON lva.vacancy_id = sv.vacancy_id
+					JOIN		core.sat_area AS sa ON sa.area_id = lva.area_id
+					JOIN		core.link_vacancy_experience AS lve ON lve.vacancy_id = sv.vacancy_id
+					JOIN		core.sat_experience AS se ON se.experience_id = lve.experience_id
+					LEFT JOIN	core.link_vacancy_salary as lvs ON lvs.vacancy_id = sv.vacancy_id
 					LEFT JOIN	core.sat_salary as ss ON ss.salary_id = lvs.salary_id
 
 					WHERE		sv.type <> 'Another'
@@ -591,7 +592,7 @@ RETURNS TABLE (	  id int
 									, min(avg_salary) AS min
 									, max(avg_salary) AS max
 						FROM		tbl AS t
-						JOIN		avg_salary AS av on av.vacancy_id = t.vacancy_id
+						JOIN		avg_salary AS av ON av.vacancy_id = t.vacancy_id
 						GROUP BY	  t.type
 									, t.grade)
 
@@ -602,18 +603,18 @@ RETURNS TABLE (	  id int
 										, min(avg_salary) AS min
 										, max(avg_salary) AS max
 							FROM		tbl AS t
-							JOIN		avg_salary AS av on av.vacancy_id = t.vacancy_id
+							JOIN		avg_salary AS av ON av.vacancy_id = t.vacancy_id
 							GROUP BY	  t.type
 										, t.experience_name)
 
-	select	  row_number() over () as id
+	SELECT	  row_number() OVER () AS id
 			, tbl.type
 			, tbl.cnt_open
 			, tbl.cnt_salary
+			, tbl.avg_salary
 			, tbl.min_salary
 			, tbl.max_salary
-			, tbl.avg_salary
-			, tbl.avg_salary/(case when tbl.max_salary = 0 then 1 else tbl.max_salary end) as ratio
+			, tbl.avg_salary/(CASE WHEN tbl.max_salary = 0 THEN 1 ELSE tbl.max_salary END) AS ratio
 			, coalesce(intern.cnt, 0.0) AS intern_cnt
 			, coalesce(intern.avg, 0.0) AS intern_avg
 			, coalesce(intern.min, 0.0) AS intern_min
@@ -651,27 +652,27 @@ RETURNS TABLE (	  id int
 			, coalesce(high_exp.min, 0.0) AS high_exp_min
 			, coalesce(high_exp.max, 0.0) AS high_exp_max
 
-	FROM	(	SELECT t.type
-						, count(case when t.is_open = True then 1 end) as cnt_open
-						, count(case when t.salary_from <> 0 or salary_from <> 0 then 1 end) as cnt_salary
-						, coalesce(min(av.avg_salary), 0.0) as min_salary
-						, coalesce(max(av.avg_salary), 0.0) as max_salary
-						, coalesce(avg(av.avg_salary), 0.0) as avg_salary
-				FROM tbl as t
-				LEFT JOIN avg_salary as av ON av.vacancy_id = t.vacancy_id
+	FROM	(	SELECT		  t.type
+							, count(CASE WHEN t.is_open = True THEN 1 END) AS cnt_open
+							, count(CASE WHEN t.salary_from <> 0 OR salary_from <> 0 THEN 1 END) AS cnt_salary
+							, coalesce(min(av.avg_salary), 0.0) AS min_salary
+							, coalesce(max(av.avg_salary), 0.0) AS max_salary
+							, coalesce(avg(av.avg_salary), 0.0) AS avg_salary
+				FROM		tbl AS t
+				LEFT JOIN	avg_salary as av ON av.vacancy_id = t.vacancy_id
 				GROUP BY	t.type
 			) AS tbl
 
-	LEFT JOIN (select * from grade where grade = 'Intern') AS intern on intern.type = tbl.type
-	LEFT JOIN (select * from grade where grade = 'Junior') AS junior on junior.type = tbl.type
-	LEFT JOIN (select * from grade where grade = 'Middle') AS middle on middle.type = tbl.type
-	LEFT JOIN (select * from grade where grade = 'Senior') AS senior on senior.type = tbl.type
-	LEFT JOIN (select * from grade where grade = 'Team Lead') AS lead on lead.type = tbl.type
+	LEFT JOIN (SELECT * FROM grade WHERE grade = 'Intern') AS intern ON intern.type = tbl.type
+	LEFT JOIN (SELECT * FROM grade WHERE grade = 'Junior') AS junior ON junior.type = tbl.type
+	LEFT JOIN (SELECT * FROM grade WHERE grade = 'Middle') AS middle ON middle.type = tbl.type
+	LEFT JOIN (SELECT * FROM grade WHERE grade = 'Senior') AS senior ON senior.type = tbl.type
+	LEFT JOIN (SELECT * FROM grade WHERE grade = 'Team Lead') AS lead ON lead.type = tbl.type
 
-	LEFT JOIN (select * from expirience where experience_name = 'Нет опыта') AS no_exp on no_exp.type = tbl.type
-	LEFT JOIN (select * from expirience where experience_name = 'От 1 года до 3 лет') AS low_exp on low_exp.type = tbl.type
-	LEFT JOIN (select * from expirience where experience_name = 'От 3 до 6 лет') AS mid_exp on mid_exp.type = tbl.type
-	LEFT JOIN (select * from expirience where experience_name = 'Более 6 лет') AS high_exp on high_exp.type = tbl.type
+	LEFT JOIN (SELECT * FROM expirience WHERE experience_name = 'Нет опыта') AS no_exp ON no_exp.type = tbl.type
+	LEFT JOIN (SELECT * FROM expirience WHERE experience_name = 'От 1 года до 3 лет') AS low_exp ON low_exp.type = tbl.type
+	LEFT JOIN (SELECT * FROM expirience WHERE experience_name = 'От 3 до 6 лет') AS mid_exp ON mid_exp.type = tbl.type
+	LEFT JOIN (SELECT * FROM expirience WHERE experience_name = 'Более 6 лет') AS high_exp ON high_exp.type = tbl.type
 
 	ORDER BY tbl.type;
 $$ LANGUAGE SQL;

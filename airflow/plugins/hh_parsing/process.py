@@ -17,7 +17,6 @@ def get_postgres_conn(conn_id):
                             user=hook.login, 
                             password=hook.password,
                             dbname=hook.schema)
-
     return conn
 
 #get pages with data from api.hh.ru
