@@ -32,19 +32,19 @@ pgadmin
 2. Выполнить команду ```docker compose up -d```
 
 ### Управление
-1. [Airflow](http://localhost:8080/)
-   login: airflow
+1. [Airflow](http://localhost:8080/) \
+   login: airflow \
    password: airflow
 
-2. [pgadmin](http://localhost)
-   login: admin@pgadmin.com
+2. [pgadmin](http://localhost) \
+   login: admin@pgadmin.com \
    password: password
 
-3. Postgres connection
-   server: host.docker.internal
-   port: 5432
-   database: vacancy
-   login: postgres
+3. Postgres connection \
+   server: host.docker.internal \
+   port: 5432 \
+   database: vacancy \
+   login: postgres \
    password: password
 
 ## Получение данных
