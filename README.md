@@ -33,7 +33,19 @@ pgadmin
 
 ### Управление
 1. [Airflow](http://localhost:8080/)
+   login: airflow
+   password: airflow
+
 2. [pgadmin](http://localhost)
+   login: admin@pgadmin.com
+   password: password
+
+3. Postgres connection
+   server: host.docker.internal
+   port: 5432
+   database: vacancy
+   login: postgres
+   password: password
 
 ## Получение данных
 1. В pgadmin подключаемся к БД vacancy
