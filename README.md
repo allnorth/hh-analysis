@@ -29,3 +29,30 @@ pgadmin
 ### Управление
 1. [Airflow](http://localhost:8080/)
 2. [pgadmin](http://localhost)
+
+## Получение данных
+1. В pgadmin подключаемся к БД vacancy
+2. Выполняем необходимый запрос:
+
+   Запрос для получения по всем направлениям \
+   ```SELECT * FROM mart.get_vacancies()```
+
+   Запрос для получения витрины DE по регионам \
+   ```SELECT * FROM mart.get_vacancies_by_region(ARRAY['Data Engineer']);```
+
+   Запрос для получения витрины DA по регионам \
+   ```SELECT * FROM mart.get_vacancies_by_region(ARRAY['Data Analyst']);```
+
+   Запрос для получения витрины DS по регионам \
+   ```SELECT * FROM mart.get_vacancies_by_region(ARRAY['Data Scientist']);```
+   
+   Запрос для получения витрины DE по компаниям \
+   ```SELECT * FROM mart.get_vacancies_by_employer(ARRAY['Data Engineer']);```
+
+   Запрос для получения витрины DA по компаниям \
+   ```SELECT * FROM mart.get_vacancies_by_employer(ARRAY['Data Analyst']);```
+   
+   Запрос для получения витрины DS по компаниям \
+   ```SELECT * FROM mart.get_vacancies_by_employer(ARRAY['Data Scientist']);```
+   
+   
