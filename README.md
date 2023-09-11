@@ -38,19 +38,19 @@ pgadmin
    ```SELECT * FROM mart.get_vacancies()```
 
    Запрос для получения витрины DE по регионам \
-   ```SELECT * FROM mart.get_vacancies_by_region(ARRAY['Data Engineer']);```
+   ```SELECT * FROM mart.get_vacancies_by_region(ARRAY['Data Engineer'])```
 
    Запрос для получения витрины DA по регионам \
-   ```SELECT * FROM mart.get_vacancies_by_region(ARRAY['Data Analyst']);```
+   ```SELECT * FROM mart.get_vacancies_by_region(ARRAY['Data Analyst'])```
 
    Запрос для получения витрины DS по регионам \
-   ```SELECT * FROM mart.get_vacancies_by_region(ARRAY['Data Scientist']);```
+   ```SELECT * FROM mart.get_vacancies_by_region(ARRAY['Data Scientist'])```
    
    Запрос для получения витрины DE по компаниям \
-   ```SELECT * FROM mart.get_vacancies_by_employer(ARRAY['Data Engineer']);```
+   ```SELECT * FROM mart.get_vacancies_by_employer(ARRAY['Data Engineer'])```
 
    Запрос для получения витрины DA по компаниям \
-   ```SELECT * FROM mart.get_vacancies_by_employer(ARRAY['Data Analyst']);```
+   ```SELECT * FROM mart.get_vacancies_by_employer(ARRAY['Data Analyst'])```
    
    Запрос для получения витрины DS по компаниям \
    ```SELECT * FROM mart.get_vacancies_by_employer(ARRAY['Data Scientist']);```
